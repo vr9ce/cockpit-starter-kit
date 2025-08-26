@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useState, StrictMode} from "react"
 
 function Square({value, onSquareClick}) {
     return (

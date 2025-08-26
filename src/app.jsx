@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react"
+import React, {StrictMode, useEffect, useState} from "react"
 import {Alert} from "@patternfly/react-core/dist/esm/components/Alert/index.js"
 import {Card, CardBody, CardTitle} from "@patternfly/react-core/dist/esm/components/Card/index.js"
 import cockpit from "cockpit"
@@ -15,12 +15,14 @@ export function Application() {
     }, [])
 
     return (
-        <Card>
-            <CardTitle>Starter Kit</CardTitle>
-            <CardBody>
-                <Alert variant='info' title={cockpit.format(cockpit.gettext("Running on $0"), hostname)} />
-            </CardBody>
-            <Game />
-        </Card>
+        <StrictMode>
+            <Card>
+                <CardTitle>Starter Kit</CardTitle>
+                <CardBody>
+                    <Alert variant='info' title={cockpit.format(cockpit.gettext("Running on $0"), hostname)} />
+                </CardBody>
+                <Game />
+            </Card>
+        </StrictMode>
     )
 }
