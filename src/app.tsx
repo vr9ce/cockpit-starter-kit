@@ -17,32 +17,29 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useState } from 'react';
-import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import React, {useEffect, useState} from "react"
+import {Alert} from "@patternfly/react-core/dist/esm/components/Alert/index.js"
+import {Card, CardBody, CardTitle} from "@patternfly/react-core/dist/esm/components/Card/index.js"
 
-import cockpit from 'cockpit';
+import cockpit from "cockpit"
 
-const _ = cockpit.gettext;
+const _ = cockpit.gettext
 
 export const Application = () => {
-    const [hostname, setHostname] = useState(_("Unknown"));
+    const [hostname, setHostname] = useState(_("Unknown"))
 
     useEffect(() => {
-        const hostname = cockpit.file('/etc/hostname');
-        hostname.watch(content => setHostname(content?.trim() ?? ""));
-        return hostname.close;
-    }, []);
+        const hostname = cockpit.file("/etc/hostname")
+        hostname.watch(content => setHostname(content?.trim() ?? ""))
+        return hostname.close
+    }, [])
 
     return (
         <Card>
             <CardTitle>Starter Kit</CardTitle>
             <CardBody>
-                <Alert
-                    variant="info"
-                    title={ cockpit.format(_("Running on $0"), hostname) }
-                />
+                <Alert variant='info' title={cockpit.format(_("Running on $0"), hostname)} />
             </CardBody>
         </Card>
-    );
-};
+    )
+}
