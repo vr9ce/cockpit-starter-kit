@@ -6,6 +6,7 @@
         "editor.indentSize": "tabSize",
         "prettier.singleQuote": true
     },
+    "javascript.format.insertSpaceBeforeFunctionParenthesis": false,
     "[typescript]": {
         "prettier.semi": false,
         "editor.indentSize": "tabSize",
