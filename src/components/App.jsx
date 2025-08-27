@@ -3,7 +3,7 @@
 import React, {useState, useEffect} from "react"
 import cockpit from "cockpit"
 
-const proc_tree_open_db_req = indexedDB.open("ProcTree", 1)
+const proc_tree_open_db_req = indexedDB.open("shynur", 1)
 
 /**
  * @param {IDBVersionChangeEvent} event
@@ -21,7 +21,7 @@ proc_tree_open_db_req.onupgradeneeded = function(event) {
     }
 
     function upgrade_to_1() {
-        const store_samples = db.createObjectStore("samples", {keyPath: "timestamp"})
+        const store_samples = db.createObjectStore("ProcTree", {keyPath: "timestamp"})
     }
 
     function upgrade_to_2() {}
@@ -47,9 +47,9 @@ proc_tree_open_db_req.onsuccess = function() {
             }"`
         ]))).then(
             res => {
-                const tx = db.transaction("samples", "readwrite")
+                const tx = db.transaction("ProcTree", "readwrite")
 
-                const req = tx.objectStore("samples").add(JSON.parse(res))
+                const req = tx.objectStore("ProcTree").add(JSON.parse(res))
                 req.onerror = function(event) {console.log(this.error)}
 
                 tx.oncomplete = function() {
@@ -58,7 +58,7 @@ proc_tree_open_db_req.onsuccess = function() {
             }
         ).catch(
             err => console.error("从控制器获取 '/proc' 采样失败: " + err.message)
-        ).finally(() => setTimeout(fetchDataPeriodically, 5 * 1e3))
+        ).finally(() => setTimeout(fetchDataPeriodically, 5_000))
     }()
 }
 
