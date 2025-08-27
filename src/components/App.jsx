@@ -39,17 +39,17 @@ proc_tree_open_db_req.onsuccess = function() {
 
     // @ts-ignore
     !function fetchDataPeriodically() {
-        cockpit.spawn([
+        new Promise(res => res(cockpit.spawn([
             "bash", "-c",
-            `node --input-type=module -e "${
+            `. ~/.nvm/nvm.sh; node --input-type=module -e "${
                 '`cat /usr/local/bin/psutil.mjs`;'
                 + 'console.log(JSON.stringify({timestamp:Date.now()/1e3,data:await makeProcTree_Linux(1)}))'
             }"`
-        ]).then(JSON.parse).then(
+        ]))).then(
             res => {
                 const tx = db.transaction("samples", "readwrite")
 
-                const req = tx.objectStore("samples").add(res)
+                const req = tx.objectStore("samples").add(JSON.parse(res))
                 req.onerror = function(event) {console.log(this.error)}
 
                 tx.oncomplete = function() {
