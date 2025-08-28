@@ -7,20 +7,23 @@ import {TreeView} from "@patternfly/react-core"
  * @typedef {Object} procTree
  * @prop {string} name
  * @prop {string} id
- * @prop {{ "aria-label"?: string, checked?: boolean }} checkProps
+ * @prop {{"aria-label"?: string, checked?: boolean}} checkProps
  * @prop {procTree[]} [children]
  * @prop {boolean} [defaultExpanded]
  */
 
 /**
  *
- * @param {{procTreeArray: procTree[]}} procTreeArray
+ * @param {{
+ *     procTreeArray: procTree[],
+ *     onNewSelect?: (checkedItems?: number[]) => void
+ * }} procTreeArray
  */
-export default function ({procTreeArray}) {
+export default function ({procTreeArray, onNewSelect = () => {}}) {
     const [checkedItems, setCheckedItems] = useState([])
-    //useEffect(() => {
-    //    console.log("Checked items: ", checkedItems)
-    //}, [checkedItems])
+    useEffect(() => {
+        console.log("Checked items: ", checkedItems)
+    }, [checkedItems])
 
     const onCheck = (event, treeViewItem) => {
         const checked = event.target.checked
@@ -71,5 +74,13 @@ export default function ({procTreeArray}) {
         }
     }
     const mapped = procTreeArray.map(item => mapTree(item))
-    return <TreeView hasAnimations aria-label='Tree View with checkboxes example' data={mapped} onCheck={onCheck} hasCheckboxes />
+    return (
+        <TreeView
+            hasAnimations
+            aria-label='Tree View with checkboxes example'
+            data={mapped}
+            onCheck={onCheck}
+            hasCheckboxes
+        />
+    )
 }

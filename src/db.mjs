@@ -1,6 +1,6 @@
 /**
  * @type {IDBDatabase}
- */
+ */  // @ts-ignore
 export default new Promise(
     (res, rej) => {
         const open_db_req = indexedDB.open("shynur", 1)

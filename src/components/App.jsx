@@ -1,9 +1,8 @@
 // @ts-check
 
-import React from "react"
+import React, {useState, useEffect} from "react"
 import cockpit from "cockpit"
 import db from "../db.mjs"
-
 
 !async function fetchDataPeriodically() {
     const stdout = await cockpit.spawn(
@@ -33,15 +32,103 @@ import db from "../db.mjs"
     setTimeout(fetchDataPeriodically, 5_000)
 }()
 
-import Panel from "./Panel.jsx"
+/***********************************************/
+
+import {
+    Page, Masthead, MastheadMain, MastheadToggle, MastheadBrand, MastheadLogo,
+    MastheadContent, PageSidebar, PageSidebarBody, PageSection, PageToggleButton, Toolbar,
+    ToolbarContent, ToolbarItem
+} from '@patternfly/react-core'
+import ItemExplorer from "./ItemExplorer.jsx"
+import "@patternfly/react-core/dist/styles/base.css"
 
 export default function () {
-    return <Panel procTreeArray={[
-        {
-            name: "正在加载中...",
-            id: "loading",
-            checkProps: {checked: false, "aria-label": "Loading"},
-            defaultExpanded: true
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+
+    const masthead = (
+        <Masthead>
+            <MastheadMain>
+                <MastheadToggle>
+                    <PageToggleButton
+                        isHamburgerButton
+                        aria-label="Global navigation"
+                        isSidebarOpen={isSidebarOpen}
+                        onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                        id="vertical-nav-toggle"
+                    />
+                </MastheadToggle>
+            </MastheadMain>
+            <MastheadContent>
+                <Toolbar id="vertical-toolbar">
+                    <ToolbarContent>
+                        <ToolbarItem>
+                            进程资源占用监视器
+                        </ToolbarItem>
+                    </ToolbarContent>
+                </Toolbar>
+            </MastheadContent>
+        </Masthead>
+    )
+
+    const [procTreeSamples, setProcTreeSamples] = useState([])
+    useEffect(
+        () => {
+            let timeoutId = 0
+            !async function fetchSamples() {
+                (await db)
+                    .transaction("ProcTree", "readonly")
+                    .objectStore("ProcTree")
+                    .getAll(IDBKeyRange.lowerBound(Date.now()/1e3 - 600))
+                    .onsuccess = function() {
+                        const fetchedSamples = [...this.result]
+                        if (
+                            fetchedSamples.slice(-1)[0].timestamp
+                            != procTreeSamples.slice(-1)[0]?.timestamp
+                        )
+                            setProcTreeSamples(this.result)
+                    }
+                timeoutId = setTimeout(fetchSamples, 5_000)
+            }()
+            return () => clearTimeout(timeoutId)
+        },
+        []
+    )
+
+    const [userSelected, setUserSelected] = useState(new Map)
+
+    const procTreeArray = [
+        procTreeSamples.length && {
+            ...function makeProcTreeArray(procTree) {
+                return {
+                    name: `${procTree.self.status.Name} #${procTree.self.status.Pid}`,
+                    id: `PID=${procTree.self.status.Pid}`,
+                    checkProps: {checked: !!userSelected.get(procTree.self.status.Pid)},
+                    children: procTree.children.length ? procTree.children.sort(
+                        (p1, p2) => p1.self.status.Pid - p2.self.status.Pid
+                    ).map(makeProcTreeArray) : undefined,
+                    defaultExpanded: false
+                }
+            }(procTreeSamples.slice(-1)[0].data),
+            defaultExpanded: true,
         }
-    ]} />
+    ]
+
+
+    const sidebar = (
+        <PageSidebar isSidebarOpen={isSidebarOpen} id="vertical-sidebar">
+            <PageSidebarBody>
+                <ItemExplorer procTreeArray={procTreeArray}/>
+            </PageSidebarBody>
+        </PageSidebar>
+    )
+
+    return (
+        <Page masthead={masthead} sidebar={sidebar}>
+            <PageSection aria-labelledby="section-1">
+                <h2 id="section-1">
+                    Vertical nav example section 1
+                </h2>
+            </PageSection>
+        </Page>
+    )
 }
