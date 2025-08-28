@@ -8,8 +8,8 @@ import {TreeView} from "@patternfly/react-core"
  * @prop {string} name
  * @prop {string} id
  * @prop {{ "aria-label"?: string, checked?: boolean }} checkProps
- * @prop {procTree[]} children?
- * @prop {boolean} defaultExpanded?
+ * @prop {procTree[]} [children]
+ * @prop {boolean} [defaultExpanded]
  */
 
 /**

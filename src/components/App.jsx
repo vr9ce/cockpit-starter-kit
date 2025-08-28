@@ -2,43 +2,8 @@
 
 import React from "react"
 import cockpit from "cockpit"
+import db from "../db.mjs"
 
-/**
- * @type {IDBDatabase}
- */
-const db = await new Promise(
-    (res, rej) => {
-        const open_db_req = indexedDB.open("shynur", 1)
-        /**
-         * @param {IDBVersionChangeEvent} event
-         */
-        open_db_req.onupgradeneeded = function(event) {
-            const db = this.result
-            switch (event.oldVersion) {
-                case 0:
-                    db.createObjectStore("ProcTree", {keyPath: "timestamp"})
-                    break
-                default:
-                    rej(new Error(`不支持的 IndexedDB/shynur 版本: ${event.oldVersion}`))
-            }
-        }
-        open_db_req.onblocked = function() {
-            alert("请关闭其它打开本网页客户端的旧版本标签页, 然后刷新本页面!")
-            rej(new Error)
-        }
-        open_db_req.onerror = function() {rej(this.error)}
-        open_db_req.onsuccess = function() {
-            const db = this.result
-            db.onversionchange = function () {
-                this.close()
-                alert("网页客户端有新版本, 请关闭当前页面 (旧页面)!")
-                rej(new Error)
-            }
-
-            res(db)
-        }
-    }
-)
 
 !async function fetchDataPeriodically() {
     const stdout = await cockpit.spawn(
@@ -51,7 +16,7 @@ const db = await new Promise(
         ]
     )
 
-    const tx = db.transaction("ProcTree", "readwrite")
+    const tx = (await db).transaction("ProcTree", "readwrite")
     await new Promise(
         (res, rej) => {
             tx.oncomplete = function () {
@@ -71,5 +36,12 @@ const db = await new Promise(
 import Panel from "./Panel.jsx"
 
 export default function () {
-    return <Panel procTreeArray={[]} />
+    return <Panel procTreeArray={[
+        {
+            name: "正在加载中...",
+            id: "loading",
+            checkProps: {checked: false, "aria-label": "Loading"},
+            defaultExpanded: true
+        }
+    ]} />
 }
