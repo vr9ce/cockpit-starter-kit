@@ -1,7 +1,9 @@
 // @ts-check
+/* eslint-disable react/jsx-no-bind */
 
 import React, {useEffect, useState} from "react"
 import {TreeView} from "@patternfly/react-core"
+import PropTypes from "prop-types"
 
 /**
  * @typedef {Object} procTree
@@ -16,71 +18,66 @@ import {TreeView} from "@patternfly/react-core"
  *
  * @param {{
  *     procTreeArray: procTree[],
- *     onNewSelect?: (checkedItems?: number[]) => void
- * }} procTreeArray
+ *     onNewSelect?: (checkedItems?: Set<number>) => void
+ * }} props
  */
-export default function ({procTreeArray, onNewSelect = () => {}}) {
-    const [checkedItems, setCheckedItems] = useState([])
-    useEffect(() => {
-        console.log("Checked items: ", checkedItems)
-    }, [checkedItems])
+export default function ItemExplorer({procTreeArray, onNewSelect = () => {}}) {
+    const [checkedItems, setCheckedItems] = useState(/** @type {Set<number>} */ (new Set))
+    useEffect(
+        () => {
+            onNewSelect(checkedItems)
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [checkedItems]
+    )
 
-    const onCheck = (event, treeViewItem) => {
-        const checked = event.target.checked
-        const checkedItemTree = procTreeArray.map(opt => Object.assign({}, opt)).filter(item => filterItems(item, treeViewItem))
-        const flatCheckedItems = flattenTree(checkedItemTree)
-        setCheckedItems(prevCheckedItems => (checked ? prevCheckedItems.concat(flatCheckedItems.filter(item => !checkedItems.some(i => i.id === item.id))) : prevCheckedItems.filter(item => !flatCheckedItems.some(i => i.id === item.id))))
+    /**
+     * @param {React.ChangeEvent} event
+     * @param {import('@patternfly/react-core').TreeViewDataItem} treeViewItem
+     */
+    function onCheck(event, treeViewItem) {
+        const newCheckedItems = new Set(checkedItems)
+
+        if (/** @type {HTMLInputElement} */ (event.target).checked)
+            newCheckedItems.add(+treeViewItem.id.split('=')[1])
+        else
+            newCheckedItems.delete(+treeViewItem.id.split('=')[1])
+
+        setCheckedItems(newCheckedItems)
     }
-    const isChecked = dataItem => checkedItems.some(item => item.id === dataItem.id)
-    const areAllDescendantsChecked = dataItem => (dataItem.children ? dataItem.children.every(child => areAllDescendantsChecked(child)) : isChecked(dataItem))
-    const areSomeDescendantsChecked = dataItem => (dataItem.children ? dataItem.children.some(child => areSomeDescendantsChecked(child)) : isChecked(dataItem))
-    const flattenTree = tree => {
-        let result = []
-        tree.forEach(item => {
-            result.push(item)
-            if (item.children) {
-                result = result.concat(flattenTree(item.children))
-            }
-        })
-        return result
-    }
-    const mapTree = item => {
-        const hasCheck = areAllDescendantsChecked(item)
-        if (item.checkProps) {
-            item.checkProps.checked = false
-            if (hasCheck) {
-                item.checkProps.checked = true
-            } else {
-                const hasPartialCheck = areSomeDescendantsChecked(item)
-                if (hasPartialCheck) {
-                    item.checkProps.checked = null
-                }
-            }
-            if (item.children) {
-                return {
+
+    /**
+     * @param {procTree[]} procTreeArray
+     * @returns {procTree[]}
+     */
+    function markChecked(procTreeArray) {
+        // @ts-ignore
+        return procTreeArray.map(
+            item => (
+                {
                     ...item,
-                    children: item.children.map(child => mapTree(child))
+                    checkProps: {
+                        ...item.checkProps,
+                        checked: checkedItems.has(+item.id.split('=')[1])
+                    },
+                    children: item.children ? markChecked(item.children) : undefined
                 }
-            }
-        }
-        return item
+            )
+        )
     }
-    const filterItems = (item, checkedItem) => {
-        if (item.id === checkedItem.id) {
-            return true
-        }
-        if (item.children) {
-            return (item.children = item.children.map(opt => Object.assign({}, opt)).filter(child => filterItems(child, checkedItem))).length > 0
-        }
-    }
-    const mapped = procTreeArray.map(item => mapTree(item))
+
     return (
         <TreeView
             hasAnimations
             aria-label='Tree View with checkboxes example'
-            data={mapped}
+            data={markChecked(procTreeArray)}
             onCheck={onCheck}
             hasCheckboxes
         />
     )
+}
+
+ItemExplorer.propTypes = {
+    procTreeArray: PropTypes.array.isRequired,
+    onNewSelect: PropTypes.func
 }
