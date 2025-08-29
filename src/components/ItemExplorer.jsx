@@ -18,7 +18,7 @@ import PropTypes from "prop-types"
  *
  * @param {{
  *     procTreeArray: procTree[],
- *     onNewSelect?: (checkedItems?: Set<number>) => void
+ *     onNewSelect?: (checkedItems: Set<number>) => any
  * }} props
  */
 export default function ItemExplorer({procTreeArray, onNewSelect = () => {}}) {

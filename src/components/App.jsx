@@ -102,7 +102,7 @@ export default function () {
                 return {
                     name: `${procTree.self.status.Name}`,
                     id: `PID=${procTree.self.status.Pid}`,
-                    checkProps: {checked: !!userSelected.has(procTree.self.status.Pid)},
+                    checkProps: {/*checked: !!userSelected.has(procTree.self.status.Pid)*/},
                     children: procTree.children.length ? procTree.children.sort(
                         // @ts-ignore
                         (p1, p2) => p1.self.status.Pid - p2.self.status.Pid
@@ -120,7 +120,7 @@ export default function () {
             <PageSidebarBody>
                 <ItemExplorer
                     procTreeArray={procTreeArray}
-                    onNewSelect={()=>{}}
+                    onNewSelect={setUserSelected}
                 />
             </PageSidebarBody>
         </PageSidebar>
