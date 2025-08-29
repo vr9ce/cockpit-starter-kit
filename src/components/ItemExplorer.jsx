@@ -39,8 +39,10 @@ export default function ItemExplorer({procTreeArray, onNewSelect = () => {}}) {
         const newCheckedItems = new Set(checkedItems)
 
         if (/** @type {HTMLInputElement} */ (event.target).checked)
+            // @ts-ignore
             newCheckedItems.add(+treeViewItem.id.split('=')[1])
         else
+            // @ts-ignore
             newCheckedItems.delete(+treeViewItem.id.split('=')[1])
 
         setCheckedItems(newCheckedItems)
