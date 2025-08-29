@@ -44,22 +44,21 @@ import "@patternfly/react-core/dist/styles/base.css"
 
 export default function () {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-
     const masthead = (
         <Masthead>
             <MastheadMain>
                 <MastheadToggle>
                     <PageToggleButton
                         isHamburgerButton
-                        aria-label="Global navigation"
+                        aria-label='Global navigation'
                         isSidebarOpen={isSidebarOpen}
                         onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                        id="vertical-nav-toggle"
+                        id='vertical-nav-toggle'
                     />
                 </MastheadToggle>
             </MastheadMain>
             <MastheadContent>
-                <Toolbar id="vertical-toolbar">
+                <Toolbar id='vertical-toolbar'>
                     <ToolbarContent>
                         <ToolbarItem>
                             进程资源占用监视器
@@ -91,41 +90,45 @@ export default function () {
             }()
             return () => clearTimeout(timeoutId)
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     )
 
-    const [userSelected, setUserSelected] = useState(new Map)
-
-    const procTreeArray = [
-        procTreeSamples.length && {
+    const [userSelected, setUserSelected] = useState(/** @type {Set<number>} */ (new Set))
+    const procTreeArray = procTreeSamples.length ? [
+        {
             ...function makeProcTreeArray(procTree) {
                 return {
-                    name: `${procTree.self.status.Name} #${procTree.self.status.Pid}`,
+                    name: `${procTree.self.status.Name}`,
                     id: `PID=${procTree.self.status.Pid}`,
-                    checkProps: {checked: !!userSelected.get(procTree.self.status.Pid)},
+                    checkProps: {checked: !!userSelected.has(procTree.self.status.Pid)},
                     children: procTree.children.length ? procTree.children.sort(
+                        // @ts-ignore
                         (p1, p2) => p1.self.status.Pid - p2.self.status.Pid
                     ).map(makeProcTreeArray) : undefined,
                     defaultExpanded: false
                 }
+            // @ts-ignore
             }(procTreeSamples.slice(-1)[0].data),
             defaultExpanded: true,
         }
-    ]
-
+    ] : []
 
     const sidebar = (
-        <PageSidebar isSidebarOpen={isSidebarOpen} id="vertical-sidebar">
+        <PageSidebar isSidebarOpen={isSidebarOpen} id='vertical-sidebar'>
             <PageSidebarBody>
-                <ItemExplorer procTreeArray={procTreeArray}/>
+                <ItemExplorer
+                    procTreeArray={procTreeArray}
+                    onNewSelect={()=>{}}
+                />
             </PageSidebarBody>
         </PageSidebar>
     )
 
     return (
         <Page masthead={masthead} sidebar={sidebar}>
-            <PageSection aria-labelledby="section-1">
-                <h2 id="section-1">
+            <PageSection aria-labelledby='section-1'>
+                <h2 id='section-1'>
                     Vertical nav example section 1
                 </h2>
             </PageSection>
