@@ -82,6 +82,7 @@ export default function () {
                         const fetchedSamples = [...this.result]
                         if (
                             fetchedSamples.slice(-1)[0].timestamp
+                            // @ts-ignore
                             != procTreeSamples.slice(-1)[0]?.timestamp
                         )
                             setProcTreeSamples(this.result)
