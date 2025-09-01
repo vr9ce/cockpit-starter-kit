@@ -103,6 +103,11 @@ export default function () {
         </PageSidebar>
     )
 
+    useEffect(() => {
+        console.log("userSelected", userSelected)
+        console.log("procTreeSamples", procTreeSamples)
+    }, [userSelected, procTreeSamples])
+
     return (
         <Page masthead={masthead} sidebar={sidebar}>
             <PageSection aria-labelledby='section-1'>
