@@ -60,15 +60,19 @@ export default function () {
         () => {
             let timeoutId = 0
             !async function fetchSamples() {
-                setProcTreeSamples(
-                    // @ts-ignore
-                    [...procTreeSamples, await fetchProcTreeSample()]
-                )
+                try {
+                    const next_sample = await fetchProcTreeSample()
+                    setProcTreeSamples(
+                        // @ts-ignore
+                        prev => [...prev, next_sample]
+                    )
+                } catch (e) {
+                    console.error(e)
+                }
                 timeoutId = setTimeout(fetchSamples, 5_000)
             }()
             return () => clearTimeout(timeoutId)
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     )
 

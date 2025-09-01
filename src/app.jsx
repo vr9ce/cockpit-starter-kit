@@ -3,8 +3,8 @@ import App from "./components/App.jsx"
 
 export function Application() {
     return (
-        <StrictMode>
+        //<StrictMode>
             <App />
-        </StrictMode>
+        //</StrictMode>
     )
 }

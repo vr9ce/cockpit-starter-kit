@@ -5,28 +5,32 @@ import * as echarts from "echarts"
 
 /**
  * @param {Set<number>} show
- * @param {Array<any>} procTreeSamples
+ * @param {Array<{timestamp: number, data: object}>} procTreeSamples
  */
 export default function ({show, procTreeSamples}) {
-    const chartRef = useRef(null)
+    const flat_samples = procTreeSamples.map(
+        sample => ({
+            timestamp: sample.timestamp,
+            processes: function flatten(proc_tree) {
+                return [
+                    proc_tree.self,
+                    ...proc_tree.children.map(flatten)
+                ]
+            }(sample.data)
+        })
+    )
 
+    const chartRef = useRef(null)
     useEffect(() => {
         const chart = echarts.init(chartRef.current)
 
         const option = {
             animation: false,
-            color: ["#80FFA5", "#00DDFF", "#37A2FF", "#FF0087", "#FFBF00"],
-            title: {
-                text: "进程内存占用"
-            },
+            //color: ["#80FFA5", "#00DDFF", "#37A2FF", "#FF0087", "#FFBF00"],
+            title: {text: "进程内存占用"},
             tooltip: {
                 trigger: "axis",
-                axisPointer: {
-                    type: "cross",
-                    label: {
-                        backgroundColor: "#6a7985"
-                    }
-                }
+                axisPointer: {type: "cross"},
             },
             legend: {
                 data: ["Line 1", "Line 2", "Line 3", "Line 4", "Line 5"]
