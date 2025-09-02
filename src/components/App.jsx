@@ -7,7 +7,7 @@ async function fetchProcTreeSample() {
     const stdout = await cockpit.spawn(
         [
             "bash", "-c",
-            `. ~/.nvm/nvm.sh; node --input-type=module -e "${
+            `. ~/.nvm/nvm.sh; nice -n 19 node --input-type=module -e "${
                 "`cat /usr/local/bin/psutil.mjs`;"
                 + "console.log(JSON.stringify({timestamp:Date.now()/1e3,data:await makeProcTree_Linux(1)}))"
             }"`
