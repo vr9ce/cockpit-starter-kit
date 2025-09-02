@@ -51,29 +51,17 @@ export default function ({show, procTreeSamples}) {
                 ([pid, proc]) => ({
                     name: proc.status.Name,
                     type: "line", stack: "Total", smooth: true,
-                    lineStyle: {
-                        width: 0
-                    },
+                    lineStyle: {width: 0},
                     showSymbol: false,
                     areaStyle: {
                         opacity: 0.8,
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: "rgb(128, 255, 165)"
-                            },
-                            {
-                                offset: 1,
-                                color: "rgb(1, 191, 236)"
-                            }
-                        ])
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, function() {
+                            const color = `rgb(${pid & 0xff},${pid >> 8 & 0xff},${pid >> 16 & 0xff})`
+                            return [{offset: 0, color}, {offset: 1, color}]
+                        }())
                     },
-                    emphasis: {
-                        focus: "series"
-                    },
-                    data: flat_samples.map(
-                        s => (s.processes.get(pid)?.status.VmRSS ?? 0) / 1024 / 1024
-                    )
+                    emphasis: {focus: "series"},
+                    data: flat_samples.map(s => (s.processes.get(pid)?.status.VmRSS ?? 0) / 1024 / 1024)
                 })
             )
         }
